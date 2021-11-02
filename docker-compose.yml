@@ -1,0 +1,66 @@
+version: '3'
+services:
+
+  #PHP App
+  app:
+    build:
+      context: ./
+      dockerfile: config/dockerfile
+    image: christexe/php:7.4-fpm-alpine
+    #container_name: php_app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./config/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+    networks:
+      - labnet
+
+  #Nginx Service
+  nginx:
+    image: nginx:alpine
+    #container_name: nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 8088:80
+    volumes:
+      - ./:/var/www/html
+      - ./config/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - labnet
+
+  localhost:
+    platform: linux/x86_64
+    image: mysql
+    #container_name: mysql
+    command: [ '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci' ]
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - 3306:3306
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    #container_name: phpmyadmin
+    ports:
+      - 8083:80
+    environment:
+      - PMA_HOST=localhost
+      - PMA_USER=root
+      - PMA_PASSWORD=root
+      - PMA_PORT=3306
+    links:
+      - localhost
+
+      #Docker Networks
+networks:
+  labnet: 
+    external:
+      name: labnet
