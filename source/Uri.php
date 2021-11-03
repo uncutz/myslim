@@ -2,17 +2,23 @@
 
 namespace Backend;
 
+use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 
-//TODO https://www.youtube.com/watch?v=6VAAyuVsDco 00:27:30
+//TODO https://www.youtube.com/watch?v=6VAAyuVsDco 00:40:30
 
 class Uri implements UriInterface
 {
+
+    private const SCHEME_PORTS = ['http' => 80, 'https' => 443];
+    private const SUPPORTED_SCHEMES = ['http', 'https'];
 
     /** @var string */
     private $scheme;
     /** @var string */
     private $user;
+    /** @var string|null */
+    private $password;
     /** @var string */
     private $host;
     /** @var string */
@@ -24,7 +30,6 @@ class Uri implements UriInterface
     /** @var string */
     private $fragment;
 
-    private const SCHEME_PORTS = ['http' => 80, 'https' => 443];
 
     /**
      * @param string $uri
@@ -33,11 +38,13 @@ class Uri implements UriInterface
     {
         $uriParts = parse_url($uri);
         $this->scheme = $uriParts['schema'];
-        $this->host = $uriParts['host'] ?? '';
+        $this->host = strtolower($uriParts['host'] ?? '');
         $this->user = $uriParts['user'] ?? '';
+        $this->password = $uriParts['password'] ?? null;
         $this->path = $uriParts['path'];
         $this->query = $uriParts['query'] ?? '';
         $this->setPort($this->scheme, $uriParts['port'] ?? null);
+        $this->fragment = $uriParts['fragment'] ?? '';
     }
 
     private function setPort(string $scheme, ?int $port)
@@ -81,7 +88,11 @@ class Uri implements UriInterface
      */
     public function getUserInfo(): string
     {
-        return $this->user;
+        $userInfo = $this->user;
+        if ($this->password !== null && $this->password !== '') {
+            return $userInfo . ':' . $this->password;
+        }
+        return $userInfo;
     }
 
     /**
@@ -121,37 +132,62 @@ class Uri implements UriInterface
      */
     public function getFragment()
     {
-        // TODO: Implement getFragment() method.
+        return $this->fragment;
     }
 
     /**
      * @inheritDoc
      */
-    public function withScheme($scheme)
+    public function withScheme($scheme): self
     {
-        // TODO: Implement withScheme() method.
+        if ($this->scheme === $scheme) {
+            return $this;
+        }
+
+        if (in_array($scheme, self::SUPPORTED_SCHEMES)) {
+            throw new InvalidArgumentException('unsupported scheme');
+        }
+
+
+        $clone = clone $this;
+        $clone->scheme = $scheme;
+        return $clone;
     }
 
     /**
      * @inheritDoc
      */
-    public function withUserInfo($user, $password = null)
+    public function withUserInfo($user, $password = null): self
     {
-        // TODO: Implement withUserInfo() method.
+        $clone = clone $this;
+        $clone->user = $user;
+        $clone->password = $password;
+
+        return $clone;
     }
 
     /**
      * @inheritDoc
      */
-    public function withHost($host)
+    public function withHost($host): self
     {
-        // TODO: Implement withHost() method.
+        if (is_string($host)) {
+            throw new InvalidArgumentException('invalid host');
+        }
+
+        if ($host === strtolower($this->host)) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->host = strtolower($host);
+        return $clone;
     }
 
     /**
      * @inheritDoc
      */
-    public function withPort($port)
+    public function withPort($port): self
     {
         // TODO: Implement withPort() method.
     }
@@ -159,7 +195,7 @@ class Uri implements UriInterface
     /**
      * @inheritDoc
      */
-    public function withPath($path)
+    public function withPath($path): self
     {
         // TODO: Implement withPath() method.
     }
@@ -167,7 +203,7 @@ class Uri implements UriInterface
     /**
      * @inheritDoc
      */
-    public function withQuery($query)
+    public function withQuery($query): self
     {
         // TODO: Implement withQuery() method.
     }
@@ -175,7 +211,7 @@ class Uri implements UriInterface
     /**
      * @inheritDoc
      */
-    public function withFragment($fragment)
+    public function withFragment($fragment): self
     {
         // TODO: Implement withFragment() method.
     }
