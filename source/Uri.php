@@ -43,15 +43,14 @@ class Uri implements UriInterface
         $this->password = $uriParts['password'] ?? null;
         $this->path = $uriParts['path'];
         $this->query = $uriParts['query'] ?? '';
-        $this->setPort($this->scheme, $uriParts['port'] ?? null);
+        $this->setPort($uriParts['port'] ?? null);
         $this->fragment = $uriParts['fragment'] ?? '';
     }
 
-    private function setPort(?int $port)
+    private function setPort(?int $port): void
     {
         if (self::SCHEME_PORTS[$this->scheme] === $port) {
             $this->port = null;
-
             return;
         }
         $this->port = $port;
@@ -116,7 +115,7 @@ class Uri implements UriInterface
      */
     public function getPath(): string
     {
-        $path =  trim($this->path, '/');
+        $path = trim($this->path, '/');
         return '/' . $path;
     }
 
@@ -258,12 +257,12 @@ class Uri implements UriInterface
     {
 
         $query = '';
-        if($this->query !== ''){
+        if ($this->query !== '') {
             $query = '?' . $this->query;
         }
 
         $fragment = '';
-        if($this->fragment !== ''){
+        if ($this->fragment !== '') {
             $fragment = '#' . $this->fragment;
         }
 
