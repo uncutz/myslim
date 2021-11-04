@@ -1,19 +1,20 @@
 {
-    "name": "johannespanzer/myslim",
-    "type": "project",
-    "authors": [
-        {
-            "name": "johannespanzer",
-            "email": "johannes-panzer@gmx.de"
-        }
-    ],
-    "require": {
-        "slim/psr7": "^1.5"
-    },
-    "autoload": {
-        "psr-4": {
-            "Http\\" : "Http/",
-            "Backend\\" : "source/"
-        }
+  "name": "johannespanzer/myslim",
+  "type": "project",
+  "authors": [
+    {
+      "name": "johannespanzer",
+      "email": "johannes-panzer@gmx.de"
     }
+  ],
+  "require": {
+    "slim/psr7": "^1.5",
+    "ext-http": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Http\\": "Http/",
+      "Backend\\": "source/"
+    }
+  }
 }
