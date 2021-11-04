@@ -14,7 +14,7 @@ class Uri implements UriInterface
     private const SUPPORTED_SCHEMES = ['http', 'https'];
 
     /** @var string */
-    private $scheme;
+    private $scheme; //http / https
     /** @var string */
     private $user;
     /** @var string|null */
@@ -22,13 +22,13 @@ class Uri implements UriInterface
     /** @var string */
     private $host;
     /** @var string */
-    private $path;
+    private $path; //der relative Pfad
     /** @var int|null */
-    private $port;
+    private $port; //Port
     /** @var string */
-    private $query;
+    private $query; //?parameter
     /** @var string */
-    private $fragment;
+    private $fragment; //#fragment
 
 
     /**
@@ -47,7 +47,7 @@ class Uri implements UriInterface
         $this->fragment = $uriParts['fragment'] ?? '';
     }
 
-    private function setPort(string $scheme, ?int $port)
+    private function setPort(?int $port)
     {
         if (self::SCHEME_PORTS[$this->scheme] === $port) {
             $this->port = null;
@@ -114,9 +114,10 @@ class Uri implements UriInterface
     /**
      * @inheritDoc
      */
-    public function getPath()
+    public function getPath(): string
     {
-        return $this->path;
+        $path =  trim($this->path, '/');
+        return '/' . $path;
     }
 
     /**
@@ -189,7 +190,12 @@ class Uri implements UriInterface
      */
     public function withPort($port): self
     {
-        // TODO: Implement withPort() method.
+        if ($port === $this->port) {
+            return $this;
+        }
+        $clone = clone $this;
+        $clone->setPort($port);
+        return $clone;
     }
 
     /**
@@ -197,7 +203,17 @@ class Uri implements UriInterface
      */
     public function withPath($path): self
     {
-        // TODO: Implement withPath() method.
+
+        if (is_string($path)) {
+            throw new InvalidArgumentException('invalid path');
+        }
+
+        if ($path === $this->path) {
+            return $this;
+        }
+        $clone = clone $this;
+        $clone->path = $path;
+        return $clone;
     }
 
     /**
@@ -205,7 +221,17 @@ class Uri implements UriInterface
      */
     public function withQuery($query): self
     {
-        // TODO: Implement withQuery() method.
+
+        if (is_string($query)) {
+            throw new InvalidArgumentException('invalid query');
+        }
+
+        if ($query === $this->query) {
+            return $this;
+        }
+        $clone = clone $this;
+        $clone->path = $query;
+        return $clone;
     }
 
     /**
@@ -213,7 +239,16 @@ class Uri implements UriInterface
      */
     public function withFragment($fragment): self
     {
-        // TODO: Implement withFragment() method.
+        if (is_string($fragment)) {
+            throw new InvalidArgumentException('invalid fragment');
+        }
+
+        if ($fragment === $this->$fragment) {
+            return $this;
+        }
+        $clone = clone $this;
+        $clone->path = $fragment;
+        return $clone;
     }
 
     /**
@@ -221,7 +256,24 @@ class Uri implements UriInterface
      */
     public function __toString(): string
     {
-        // TODO: Implement __toString() method.
+
+        $query = '';
+        if($this->query !== ''){
+            $query = '?' . $this->query;
+        }
+
+        $fragment = '';
+        if($this->fragment !== ''){
+            $fragment = '#' . $this->fragment;
+        }
+
+        return sprintf('%s//:%s%s%s%s',
+            $this->getScheme(),
+            $this->getAuthority(),
+            $this->getPath(),
+            $query,
+            $fragment
+        );
 
     }
 }
