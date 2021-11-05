@@ -14,21 +14,21 @@ class Uri implements UriInterface
     private const SUPPORTED_SCHEMES = ['http', 'https'];
 
     /** @var string */
-    private $scheme; //http / https
+    private string $scheme; //http / https
     /** @var string */
-    private $user;
+    private string $user;
     /** @var string|null */
-    private $password;
+    private ?string $password;
     /** @var string */
-    private $host;
+    private string $host;
     /** @var string */
-    private $path; //der relative Pfad
+    private string $path; //der relative Pfad
     /** @var int|null */
-    private $port; //Port
+    private ?int $port; //Port
     /** @var string */
-    private $query; //?parameter
+    private string $query; //?parameter
     /** @var string */
-    private $fragment; //#fragment
+    private string $fragment; //#fragment
 
 
     /**

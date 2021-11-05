@@ -5,10 +5,17 @@ namespace Backend;
 use http\Exception\InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
+use Throwable;
 
 //TODO https://www.youtube.com/watch?v=6VAAyuVsDco 01:17:00
 class Stream implements StreamInterface
 {
+
+    /** @var string[][] */
+    private const READ_WRITE_MODE = [
+        'read' => ['r' , 'r+' , 'w+' , 'a+', 'x+' , 'c+'],
+        'write' => ['w' , 'r+' , 'w+' , 'a', 'a+', 'x', 'x+', 'c' , 'c+']
+    ];
 
     /** @var resource|null */
     private $stream;
@@ -16,11 +23,16 @@ class Stream implements StreamInterface
     private ?int $size;
     /** @var bool */
     private bool $seekable;
+    /** @var bool  */
+    private bool $writable;
+    /** @var bool  */
+    private bool $readable;
+
 
     public function __construct($body = null)
     {
         if (!is_string($body) && !is_resource($body) && $body !== null) {
-            throw new InvalidArgumentException('argument 1 must be string, ressource or null');
+            throw new InvalidArgumentException('argument 1 must be string, resource or null');
         }
 
         if (!is_string($body)) {
@@ -30,16 +42,26 @@ class Stream implements StreamInterface
         }
         $this->stream = $body;
 
-        if($this->isSeekable()) {
-            fseek($body, 0 ,SEEK_CUR);
+        if ($this->isSeekable()) {
+            fseek($body, 0, SEEK_CUR);
         }
 
 
     }
 
-    public function __toString()
+    /**
+     * @return string
+     */
+    public function __toString(): string
     {
-        // TODO: Implement __toString() method.
+        try {
+            if($this->isSeekable()) {
+                $this->rewind();
+            }
+            return $this->getContents();
+        } catch (Throwable $exception) {
+            return '';
+        }
     }
 
     /**
@@ -109,48 +131,124 @@ class Stream implements StreamInterface
 
     public function isSeekable(): bool
     {
-        if($this->seekable === null) {
+        if ($this->seekable === null) {
             $this->seekable = $this->getMetadata('seekable') ?? false;
         }
 
         return $this->seekable;
     }
 
-    public function seek($offset, $whence = SEEK_SET)
+    /**
+     * @param int $offset
+     * @param int $whence
+     */
+    public function seek($offset, $whence = SEEK_SET): void
     {
-        // TODO: Implement seek() method.
+        if(!$this->isSeekable()) {
+            throw new RuntimeException('stream is not seekable');
+        }
+
+        if (fseek($this->stream, $offset, $whence)) {
+            throw new RuntimeException('unable to seek stream position' . $offset);
+        }
     }
 
-    public function rewind()
+
+    public function rewind(): void
     {
-        // TODO: Implement rewind() method.
+        if(!$this->isSeekable()) {
+            throw new RuntimeException('stream is not seekable');
+        }
+
+        $this->seek(0);
     }
 
-    public function isWritable()
+    /**
+     * @return bool
+     */
+    public function isWritable(): bool
     {
-        // TODO: Implement isWritable() method.
+
+        if(!is_resource($this->stream)) {
+            return false;
+        }
+        if ($this->writable === null) {
+            $mode = $this->getMetadata('mode');
+            $this->writable = in_array($mode, self::READ_WRITE_MODE['write'], false);
+        }
+
+        return $this->writable;
     }
 
-    public function write($string)
+    /**
+     * @param string $string
+     * @return int
+     */
+    public function write($string): int
     {
-        // TODO: Implement write() method.
+       if(!$this->isWritable()) {
+           throw new RuntimeException('string is not writeable');
+       }
+       $result = fwrite($this->stream, $string);
+       if($result === false) {
+           throw new RuntimeException('unable to write to stream');
+       }
+
+       return $result;
     }
 
-    public function isReadable()
+    /**
+     * @return bool
+     */
+    public function isReadable(): bool
     {
-        // TODO: Implement isReadable() method.
+        if(!is_resource($this->stream)) {
+            return false;
+        }
+        if ($this->readable === null) {
+            $mode = $this->getMetadata('mode');
+            $this->readable = in_array($mode, self::READ_WRITE_MODE['read'], false);
+        }
+
+        return $this->readable;
     }
 
-    public function read($length)
+    /**
+     * @param int $length
+     * @return bool
+     */
+    public function read($length): bool
     {
-        // TODO: Implement read() method.
+        if(!$this->isReadable()) {
+            throw new RuntimeException('string is not readable');
+        }
+        $result = fread($this->stream, $length);
+        if($result === false) {
+            throw new RuntimeException('unable to read stream');
+        }
+
+        return $result;
     }
 
-    public function getContents()
+    /**
+     * @return string
+     */
+    public function getContents(): string
     {
-        // TODO: Implement getContents() method.
+        if(!is_resource($this->stream)) {
+            throw new RuntimeException('unable to read stream contents');
+        }
+        $contents = stream_get_contents($this->stream);
+        if($contents === false) {
+            throw new RuntimeException('unable to read stream contents');
+        }
+        return $contents;
     }
 
+    /**
+     * @param null $key
+     * @return array|mixed|null
+     */
     public function getMetadata($key = null)
     {
         if ($this->stream === null) {
