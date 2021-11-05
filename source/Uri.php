@@ -5,7 +5,7 @@ namespace Backend;
 use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 
-//TODO https://www.youtube.com/watch?v=6VAAyuVsDco 00:40:30
+
 
 class Uri implements UriInterface
 {

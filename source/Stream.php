@@ -4,14 +4,18 @@ namespace Backend;
 
 use http\Exception\InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
+use RuntimeException;
 
+//TODO https://www.youtube.com/watch?v=6VAAyuVsDco 01:17:00
 class Stream implements StreamInterface
 {
 
     /** @var resource|null */
     private $stream;
-
+    /** @var int|null */
     private ?int $size;
+    /** @var bool */
+    private bool $seekable;
 
     public function __construct($body = null)
     {
@@ -25,6 +29,10 @@ class Stream implements StreamInterface
             $body = $resource;
         }
         $this->stream = $body;
+
+        if($this->isSeekable()) {
+            fseek($body, 0 ,SEEK_CUR);
+        }
 
 
     }
@@ -60,24 +68,52 @@ class Stream implements StreamInterface
      */
     public function getSize(): ?int
     {
+        if ($this->size !== null) {
+            return $this->size;
+        }
+
+        if ($this->stream === null) {
+            return null;
+        }
+
         $stats = fstat($this->stream);
+        $this->size = $stats['size'] ?? null;
 
-        return $stats['size'] ?? null;
+        return $this->size;
     }
 
-    public function tell()
+    /**
+     * @return int
+     */
+    public function tell(): int
     {
-        // TODO: Implement tell() method.
+        if ($this->stream === null) {
+            throw new RuntimeException('unable to get current position');
+        }
+        $position = ftell($this->stream);
+
+        if ($position === false) {
+            throw new RuntimeException('unable to get current position');
+        }
+
+        return $position;
     }
 
-    public function eof()
+    /**
+     * @return bool
+     */
+    public function eof(): bool
     {
-        // TODO: Implement eof() method.
+        return $this->stream !== null && feof($this->stream);
     }
 
-    public function isSeekable()
+    public function isSeekable(): bool
     {
-        // TODO: Implement isSeekable() method.
+        if($this->seekable === null) {
+            $this->seekable = $this->getMetadata('seekable') ?? false;
+        }
+
+        return $this->seekable;
     }
 
     public function seek($offset, $whence = SEEK_SET)
@@ -117,6 +153,15 @@ class Stream implements StreamInterface
 
     public function getMetadata($key = null)
     {
-        // TODO: Implement getMetadata() method.
+        if ($this->stream === null) {
+            return $key === null ? null : [];
+        }
+
+        $meta = stream_get_meta_data($this->stream);
+        if ($key === null) {
+            return $meta;
+        }
+
+        return $meta[$key] ?? null;
     }
 }
