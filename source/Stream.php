@@ -7,14 +7,14 @@ use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 use Throwable;
 
-//TODO https://www.youtube.com/watch?v=6VAAyuVsDco 01:17:00
+//TODO https://www.youtube.com/watch?v=QHPmA5LFtrM
 class Stream implements StreamInterface
 {
 
     /** @var string[][] */
     private const READ_WRITE_MODE = [
-        'read' => ['r' , 'r+' , 'w+' , 'a+', 'x+' , 'c+'],
-        'write' => ['w' , 'r+' , 'w+' , 'a', 'a+', 'x', 'x+', 'c' , 'c+']
+        'read' => ['r', 'r+', 'w+', 'a+', 'x+', 'c+'],
+        'write' => ['w', 'r+', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+']
     ];
 
     /** @var resource|null */
@@ -23,9 +23,9 @@ class Stream implements StreamInterface
     private ?int $size;
     /** @var bool */
     private bool $seekable;
-    /** @var bool  */
+    /** @var bool */
     private bool $writable;
-    /** @var bool  */
+    /** @var bool */
     private bool $readable;
 
 
@@ -55,7 +55,7 @@ class Stream implements StreamInterface
     public function __toString(): string
     {
         try {
-            if($this->isSeekable()) {
+            if ($this->isSeekable()) {
                 $this->rewind();
             }
             return $this->getContents();
@@ -144,7 +144,7 @@ class Stream implements StreamInterface
      */
     public function seek($offset, $whence = SEEK_SET): void
     {
-        if(!$this->isSeekable()) {
+        if (!$this->isSeekable()) {
             throw new RuntimeException('stream is not seekable');
         }
 
@@ -156,7 +156,7 @@ class Stream implements StreamInterface
 
     public function rewind(): void
     {
-        if(!$this->isSeekable()) {
+        if (!$this->isSeekable()) {
             throw new RuntimeException('stream is not seekable');
         }
 
@@ -169,7 +169,7 @@ class Stream implements StreamInterface
     public function isWritable(): bool
     {
 
-        if(!is_resource($this->stream)) {
+        if (!is_resource($this->stream)) {
             return false;
         }
         if ($this->writable === null) {
@@ -186,15 +186,15 @@ class Stream implements StreamInterface
      */
     public function write($string): int
     {
-       if(!$this->isWritable()) {
-           throw new RuntimeException('string is not writeable');
-       }
-       $result = fwrite($this->stream, $string);
-       if($result === false) {
-           throw new RuntimeException('unable to write to stream');
-       }
+        if (!$this->isWritable()) {
+            throw new RuntimeException('string is not writeable');
+        }
+        $result = fwrite($this->stream, $string);
+        if ($result === false) {
+            throw new RuntimeException('unable to write to stream');
+        }
 
-       return $result;
+        return $result;
     }
 
     /**
@@ -202,7 +202,7 @@ class Stream implements StreamInterface
      */
     public function isReadable(): bool
     {
-        if(!is_resource($this->stream)) {
+        if (!is_resource($this->stream)) {
             return false;
         }
         if ($this->readable === null) {
@@ -219,11 +219,11 @@ class Stream implements StreamInterface
      */
     public function read($length): bool
     {
-        if(!$this->isReadable()) {
+        if (!$this->isReadable()) {
             throw new RuntimeException('string is not readable');
         }
         $result = fread($this->stream, $length);
-        if($result === false) {
+        if ($result === false) {
             throw new RuntimeException('unable to read stream');
         }
 
@@ -235,11 +235,11 @@ class Stream implements StreamInterface
      */
     public function getContents(): string
     {
-        if(!is_resource($this->stream)) {
+        if (!is_resource($this->stream)) {
             throw new RuntimeException('unable to read stream contents');
         }
         $contents = stream_get_contents($this->stream);
-        if($contents === false) {
+        if ($contents === false) {
             throw new RuntimeException('unable to read stream contents');
         }
         return $contents;
