@@ -12,7 +12,7 @@ trait MessageTrait //gemeinsame methoden für request und response
 
     private string $protocol = "1.1";
     private array $headers = [];
-    /** @var StreamInterface|null  */
+    /** @var StreamInterface|null */
     private ?StreamInterface $body;
 
     public function getProtocolVersion(): string
