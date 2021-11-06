@@ -3,7 +3,6 @@
 namespace Backend;
 
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
 class Request implements RequestInterface
@@ -11,121 +10,65 @@ class Request implements RequestInterface
 
     use MessageTrait;
 
-    /** @var string */
-    private $method;
+    private const VALID_METHODS = ['get', 'post', 'delete', 'put', 'patch', 'head', 'option'];
 
     /** @var string */
-    private $header;
-
+    private string $requestTarget;
     /** @var string */
-    private $body;
-
-    /** @var Uri */
-    private $uri;
+    private string $method;
+    /** @var UriInterface */
+    private UriInterface $uri;
 
     /**
      * @param string $method
-     * @param string $header
-     * @param string $body
      * @param Uri $uri
+     * @param array $headers
+     * @param string|null $body
+     * @param string $version
      */
-    public function __construct(string $method, string $header, string $body, Uri $uri)
+    public function __construct(string $method, $uri, array $headers = [], string $body = null, string $version = '1.1')
     {
-        $this->method = $method;
-        $this->header = $header;
-        $this->body = $body;
+        $this->method = strtolower($method);
+        $this->protocol = $version;
+        $this->setHeaders($headers);
+        $this->setBody($body);
+        $this->setUri($uri);
+    }
+
+
+    /**
+     * @param $uri
+     */
+    protected function setUri($uri): void
+    {
+        if (!is_string($uri)) {
+            $uri = new Uri($uri);
+        }
+
         $this->uri = $uri;
     }
 
-
-    public function withUri(UriInterface $uri, $preserveHost = false)
+    /**
+     * @return string
+     */
+    public function getRequestTarget(): string
     {
-        // TODO: Implement withUri() method.
-    }
-
-
-    public function getHeaders(): array
-    {
-        $header = array();
-        foreach (getallheaders() as $name => $values) {
-            $header[] = $name . ": " . implode(", ", $values);
-        }
-        return $header;
-
+        return $this->requestTarget;
     }
 
     /**
-     * @param $name
-     * @return bool
+     * @param mixed $requestTarget
+     * @return $this
      */
-    public function hasHeader($name): bool
+    public function withRequestTarget($requestTarget): self
     {
-        return strcasecmp($name, $this->header) === 1;
-    }
-
-    /**
-     * @param string $name
-     * @return array<string, string>
-     */
-    public function getHeader($name): array
-    {
-
-        $headerValues = array();
-        foreach (getallheaders() as $header => $values) {
-            if ($header === $name) {
-                foreach ($values as $value) {
-                    $headerValues[] = $value;
-                }
-                break;
-            }
+        if ($requestTarget === $this->requestTarget) {
+            return $this;
         }
-        if (!$headerValues) {
-            return [];
-        }
-        return $headerValues;
-    }
 
-    public function getHeaderLine($name)
-    {
-        // TODO: Implement getHeaderLine() method.
-    }
-
-    public function withHeader($name, $value)
-    {
-        // TODO: Implement withHeader() method.
-    }
-
-    public function withAddedHeader($name, $value)
-    {
-        // TODO: Implement withAddedHeader() method.
-    }
-
-    public function withoutHeader($name)
-    {
-        // TODO: Implement withoutHeader() method.
-    }
-
-    /**
-     * @return StreamInterface|string
-     */
-    public function getBody(): string
-    {
-        return $this->body;
-    }
-
-    public function withBody(StreamInterface $body)
-    {
-        // TODO: Implement withBody() method.
-    }
-
-    public function getRequestTarget()
-    {
-        // TODO: Implement getRequestTarget() method.
-    }
-
-    public function withRequestTarget($requestTarget)
-    {
-        // TODO: Implement withRequestTarget() method.
+        $clone = clone $this;
+        $clone->requestTarget = $requestTarget;
+        return $clone;
     }
 
     /**
@@ -136,16 +79,45 @@ class Request implements RequestInterface
         return $this->method;
     }
 
-    public function withMethod($method)
+    /**
+     * @param string $method
+     * @return $this
+     */
+    public function withMethod($method): self
     {
-        // TODO: Implement withMethod() method.
+        $method = strtolower($method);
+
+        if ($method === $this->method) {
+            return $this;
+        }
+
+        if (in_array($method, self::VALID_METHODS)) {
+            throw new \InvalidArgumentException('Unknown method! Allowed methods: ' .
+                implode(', ', self::VALID_METHODS));
+        }
+
+        $clone = clone $this;
+        $clone->method = $method;
+        return $clone;
     }
 
     /**
-     * @return Uri
+     * @return UriInterface
      */
-    public function getUri(): Uri
+    public function getUri(): UriInterface
     {
         return $this->uri;
     }
+
+    public function withUri(UriInterface $uri, $preserveHost = false)
+    {
+        $clone = clone $this;
+
+        if ($preserveHost) {
+            $newUri = $uri->withHost($this->uri->getHost());
+        }
+
+        $clone->uri = $uri;
+    }
+
 }

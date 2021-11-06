@@ -2,7 +2,7 @@
 
 namespace Backend;
 
-//TODO https://www.youtube.com/watch?v=QHPmA5LFtrM 00:23:00
+//TODO https://www.youtube.com/watch?v=QHPmA5LFtrM 00:44:50
 use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
@@ -129,5 +129,32 @@ trait MessageTrait //gemeinsame methoden für request und response
 
         return $clone;
     }
+
+    /**
+     * @param array $headers
+     */
+    protected function setHeaders(array $headers): void
+    {
+        foreach ($headers as $header => $value) {
+            $normalizeHeader = strtolower($header);
+            $this->headers[$normalizeHeader] = $value;
+            if (is_string($value)) {
+                $this->headers[$normalizeHeader] = explode(',', $value);
+            }
+        }
+    }
+
+    /**
+     * @param $body
+     */
+    protected function setBody($body): void
+    {
+        if (!($body instanceof StreamInterface)) {
+            $body = new Stream($body);
+        }
+
+        $this->body = $body;
+    }
+
 
 }
