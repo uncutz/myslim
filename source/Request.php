@@ -9,6 +9,8 @@ use Psr\Http\Message\UriInterface;
 class Request implements RequestInterface
 {
 
+    use MessageTrait;
+
     /** @var string */
     private $method;
 
@@ -39,16 +41,6 @@ class Request implements RequestInterface
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
         // TODO: Implement withUri() method.
-    }
-
-    public function getProtocolVersion()
-    {
-        // TODO: Implement getProtocolVersion() method.
-    }
-
-    public function withProtocolVersion($version)
-    {
-        // TODO: Implement withProtocolVersion() method.
     }
 
 

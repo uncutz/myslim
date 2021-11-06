@@ -7,7 +7,7 @@ use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 use Throwable;
 
-//TODO https://www.youtube.com/watch?v=QHPmA5LFtrM
+
 class Stream implements StreamInterface
 {
 
