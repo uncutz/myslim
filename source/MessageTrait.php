@@ -156,5 +156,17 @@ trait MessageTrait //gemeinsame methoden für request und response
         $this->body = $body;
     }
 
+    /**
+     * @param string $name
+     * @param string $value
+     * @return bool
+     */
+    protected function inHeader(string $name, string $value): bool
+    {
+
+        $headerValues = $this->getHeader($name);
+        return in_array($value, $headerValues, true);
+
+    }
 
 }

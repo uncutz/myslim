@@ -3,120 +3,69 @@
 namespace Backend;
 
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 
 class Response implements ResponseInterface
 {
 
+    use MessageTrait;
+
+    /** @var int */
+    private int $code;
+
+    private const REASON_PHRASE = [
+        200 => 'OK',
+        201 => 'Created',
+        400 => 'Bad Request',
+        404 => 'Not Found'
+        //TODO Add all status code reason phrase
+    ];
+
     /**
-     * @inheritDoc
+     * @param int $code
      */
-    public function getProtocolVersion()
+    public function __construct(int $code, $body = null,array $headers = [], string $version = '1.1')
     {
-        // TODO: Implement getProtocolVersion() method.
+        $this->code = $code;
+        $this->setBody($body);
+        $this->setHeaders($headers);
+        $this->protocol = $version;
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getStatusCode(): int
+    {
+        return $this->code;
     }
 
     /**
-     * @inheritDoc
+     * @param int $code
+     * @param string $reasonPhrase
+     * @return $this
      */
-    public function withProtocolVersion($version)
+    public function withStatus($code, $reasonPhrase = ''): self
     {
-        // TODO: Implement withProtocolVersion() method.
+
+        if (!is_int($code)) {
+            throw new \InvalidArgumentException('argument 1 must be of type int');
+        }
+        if ($this->code = $code) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->code = $code;
+
+        return $clone;
     }
 
     /**
-     * @inheritDoc
+     * @return string
      */
-    public function getHeaders()
+    public function getReasonPhrase(): string
     {
-        // TODO: Implement getHeaders() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function hasHeader($name)
-    {
-        // TODO: Implement hasHeader() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getHeader($name)
-    {
-        // TODO: Implement getHeader() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getHeaderLine($name)
-    {
-        // TODO: Implement getHeaderLine() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function withHeader($name, $value)
-    {
-        // TODO: Implement withHeader() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function withAddedHeader($name, $value)
-    {
-        // TODO: Implement withAddedHeader() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function withoutHeader($name)
-    {
-        // TODO: Implement withoutHeader() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getBody()
-    {
-        // TODO: Implement getBody() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function withBody(StreamInterface $body)
-    {
-        // TODO: Implement withBody() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getStatusCode()
-    {
-        // TODO: Implement getStatusCode() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function withStatus($code, $reasonPhrase = '')
-    {
-        // TODO: Implement withStatus() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getReasonPhrase()
-    {
-        // TODO: Implement getReasonPhrase() method.
+        return self::REASON_PHRASE[$this->code] ?? '';
     }
 }
