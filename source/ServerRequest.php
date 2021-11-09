@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Backend;
 
@@ -15,6 +15,37 @@ class ServerRequest implements ServerRequestInterface
     private array $queries;
     private $parsedBody;
     private array $attributes;
+
+    /**
+     * @param string $method
+     * @param $uri
+     * @param array $headers
+     * @param array $servers
+     * @param array $cookies
+     * @param array $attributes
+     * @param string|null $body
+     * @param string $version
+     */
+    public function __construct(
+        string $method,
+               $uri,
+        array  $headers = [],
+        array  $servers = [],
+        array  $cookies = [],
+        array $attributes = [],
+        string $body = null,
+        string $version = '1.1'
+    )
+    {
+        $this->method = strtolower($method);
+        $this->protocol = $version;
+        $this->servers = $servers;
+        $this->cookies = $cookies;
+        $this->attributes = $attributes;
+        $this->setUri($uri);
+        $this->setHeaders($headers);
+        $this->setBody($body);
+    }
 
 
     public function getServerParams(): array
@@ -77,14 +108,14 @@ class ServerRequest implements ServerRequestInterface
     public function getParsedBody()
     {
 
-        if($this->parsedBody !== null) {
+        if ($this->parsedBody !== null) {
             return $this->parsedBody;
         }
         if ($this->isPost()) {
             return $_POST;
         }
 
-        if($this->inHeader('content-type', 'application/json')){
+        if ($this->inHeader('content-type', 'application/json')) {
             return json_decode($this->getBody(), true, 512, JSON_THROW_ON_ERROR);
         }
 

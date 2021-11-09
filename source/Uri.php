@@ -36,8 +36,8 @@ class Uri implements UriInterface
     public function __construct(string $uri)
     {
         $uriParts = parse_url($uri);
-        $this->scheme = $uriParts['schema'];
-        $this->host = strtolower($uriParts['host'] ?? '');
+        $this->scheme = $uriParts['scheme'];
+        $this->host = strtolower($uriParts['host'] ?? 'localhost');
         $this->user = $uriParts['user'] ?? '';
         $this->password = $uriParts['password'] ?? null;
         $this->path = $uriParts['path'];

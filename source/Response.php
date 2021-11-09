@@ -1,7 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Backend;
 
+use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 
 class Response implements ResponseInterface
@@ -22,6 +23,9 @@ class Response implements ResponseInterface
 
     /**
      * @param int $code
+     * @param null $body
+     * @param array $headers
+     * @param string $version
      */
     public function __construct(int $code, $body = null,array $headers = [], string $version = '1.1')
     {
@@ -49,7 +53,7 @@ class Response implements ResponseInterface
     {
 
         if (!is_int($code)) {
-            throw new \InvalidArgumentException('argument 1 must be of type int');
+            throw new InvalidArgumentException('argument 1 must be of type int');
         }
         if ($this->code = $code) {
             return $this;

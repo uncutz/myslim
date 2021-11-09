@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Backend;
 
@@ -22,7 +22,7 @@ Trait RequestTrait
      */
     protected function setUri($uri): void
     {
-        if (!is_string($uri)) {
+        if (is_string($uri)) {
             $uri = new Uri($uri);
         }
 
@@ -93,7 +93,7 @@ Trait RequestTrait
         return $this->uri;
     }
 
-    public function withUri(UriInterface $uri, $preserveHost = false)
+    public function withUri(UriInterface $uri, $preserveHost = false): void
     {
         $clone = clone $this;
 
