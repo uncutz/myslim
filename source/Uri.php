@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 
 
+//alles was mit Url und so zu tun hat
 class Uri implements UriInterface
 {
 
@@ -46,6 +47,9 @@ class Uri implements UriInterface
         $this->fragment = $uriParts['fragment'] ?? '';
     }
 
+    /**
+     * @param int|null $port
+     */
     private function setPort(?int $port): void
     {
         if (self::SCHEME_PORTS[$this->scheme] === $port) {

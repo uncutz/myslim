@@ -1,11 +1,13 @@
 <?php
 
+use Backend\ServerRequest;
+use Backend\Uri;
+
 require __DIR__ . '/../vendor/autoload.php';
 //TODO https://www.youtube.com/watch?v=3Wuzs9V60x8 wie man psr7 anwendet
 
 
-var_dump(headers_list());
-$uri = new \Backend\Uri(
+$uri = new Uri(
     sprintf('%s://%s%s%s',
         $_SERVER['REQUEST_SCHEME'],
         $_SERVER['HTTP_HOST'],
@@ -13,12 +15,11 @@ $uri = new \Backend\Uri(
         $_SERVER['QUERY_STRING'] === '' ? '' : '?' . $_SERVER['QUERY_STRING'],
     )
 );
-$request = new \Backend\ServerRequest(
+$request = new ServerRequest(
     $_SERVER['REQUEST_METHOD'],
     $uri,
     getallheaders(),
     $_SERVER,
     $_COOKIE,
-
-
 );
+

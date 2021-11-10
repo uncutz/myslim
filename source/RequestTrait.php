@@ -93,15 +93,22 @@ Trait RequestTrait
         return $this->uri;
     }
 
-    public function withUri(UriInterface $uri, $preserveHost = false): void
+    /**
+     * @param UriInterface $uri
+     * @param false $preserveHost
+     * @return Request|ServerRequest
+     */
+    public function withUri(UriInterface $uri, $preserveHost = false): Uri
     {
         $clone = clone $this;
 
+        $clone->uri = $uri;
+
         if ($preserveHost) {
-            $newUri = $uri->withHost($this->uri->getHost());
+            $clone->uri = $uri->withHost($this->uri->getHost());
         }
 
-        $clone->uri = $uri;
+        return $clone;
     }
 
 }

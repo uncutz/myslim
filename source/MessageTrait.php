@@ -135,9 +135,7 @@ trait MessageTrait //gemeinsame methoden für request und response
      */
     protected function setHeaders(array $headers): void
     {
-        var_dump($headers);
         foreach ($headers as $header => $value) {
-            var_dump($header);
             $normalizeHeader = strtolower($header);
             $this->headers[$normalizeHeader] = $value;
             if (is_string($value)) {

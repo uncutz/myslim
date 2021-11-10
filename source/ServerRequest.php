@@ -32,7 +32,7 @@ class ServerRequest implements ServerRequestInterface
         array  $headers = [],
         array  $servers = [],
         array  $cookies = [],
-        array $attributes = [],
+        array  $attributes = [],
         string $body = null,
         string $version = '1.1'
     )
@@ -81,6 +81,11 @@ class ServerRequest implements ServerRequestInterface
         return $this->queries;
     }
 
+    public function getQueryParam(string $param, $default = null)
+    {
+        return $this->getQueryParams()[$param] ?? $default;
+    }
+
     public function withQueryParams(array $query): ServerRequest
     {
         if ($query === $this->queries) {
@@ -102,8 +107,9 @@ class ServerRequest implements ServerRequestInterface
         // TODO: Implement withUploadedFiles() method.
     }
 
+
     /**
-     * @throws JsonException
+     * @return array|mixed|object|\Psr\Http\Message\StreamInterface|null
      */
     public function getParsedBody()
     {
@@ -116,12 +122,15 @@ class ServerRequest implements ServerRequestInterface
         }
 
         if ($this->inHeader('content-type', 'application/json')) {
-            return json_decode($this->getBody(), true, 512, JSON_THROW_ON_ERROR);
+            return json_decode($this->getBody()->getContents(), true);
         }
 
         return $this->body;
     }
 
+    /**
+     * @return bool
+     */
     private function isPost(): bool
     {
         $postHeaders = ['application/x-www-form-urlencoded', 'multipart/form-data'];
@@ -134,6 +143,10 @@ class ServerRequest implements ServerRequestInterface
         return false;
     }
 
+    /**
+     * @param array|object|null $data
+     * @return $this
+     */
     public function withParsedBody($data): self
     {
         //TODO evtl unvollständig
@@ -143,16 +156,29 @@ class ServerRequest implements ServerRequestInterface
         return $clone;
     }
 
+    /**
+     * @return array
+     */
     public function getAttributes(): array
     {
         return $this->attributes;
     }
 
+    /**
+     * @param string $name
+     * @param null $default
+     * @return mixed|null
+     */
     public function getAttribute($name, $default = null)
     {
         return $this->attributes[$name] ?? $default;
     }
 
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @return $this
+     */
     public function withAttribute($name, $value): self
     {
         $clone = clone $this;
@@ -161,6 +187,10 @@ class ServerRequest implements ServerRequestInterface
         return $clone;
     }
 
+    /**
+     * @param string $name
+     * @return $this
+     */
     public function withoutAttribute($name): self
     {
         $clone = clone $this;

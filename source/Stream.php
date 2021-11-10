@@ -35,12 +35,15 @@ class Stream implements StreamInterface
             throw new InvalidArgumentException('argument 1 must be string, resource or null');
         }
 
-        if (!is_string($body)) {
+        if (is_string($body)) {
             $resource = fopen('php://temp', 'wb+');
             fwrite($resource, $body);
             $body = $resource;
         }
         $this->stream = $body;
+        $this->seekable = false;
+        $this->writable = false;
+        $this->readable = false;
 
         if ($this->isSeekable()) {
             fseek($body, 0, SEEK_CUR);
@@ -215,9 +218,9 @@ class Stream implements StreamInterface
 
     /**
      * @param int $length
-     * @return bool
+     * @return string
      */
-    public function read($length): bool
+    public function read($length): string
     {
         if (!$this->isReadable()) {
             throw new RuntimeException('string is not readable');
