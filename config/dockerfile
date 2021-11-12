@@ -31,12 +31,8 @@ RUN apk add --no-cache $PHPIZE_DEPS \
     && docker-php-ext-enable xdebug
 
 # Add and Enable PHP-PDO Extenstions
-RUN docker-php-ext-install pdo pdo_mysql mysqli \
-&& pecl install pecl_http \
-pecl install raphf
-
-RUN docker-php-ext-enable pdo_mysql \
-&& docker-php-ext-enable raphf
+RUN docker-php-ext-install pdo pdo_mysql mysqli
+RUN docker-php-ext-enable pdo_mysql
 
 # Install PHP Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

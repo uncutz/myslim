@@ -36,15 +36,23 @@ class Uri implements UriInterface
      */
     public function __construct(string $uri)
     {
-        $uriParts = parse_url($uri);
-        $this->scheme = $uriParts['scheme'];
-        $this->host = strtolower($uriParts['host'] ?? 'localhost');
-        $this->user = $uriParts['user'] ?? '';
-        $this->password = $uriParts['password'] ?? null;
-        $this->path = $uriParts['path'];
-        $this->query = $uriParts['query'] ?? '';
-        $this->setPort($uriParts['port'] ?? null);
-        $this->fragment = $uriParts['fragment'] ?? '';
+        if ($uri !== '') {
+            $uriParts = parse_url($uri);
+            if ($uriParts === false) {
+                throw new InvalidArgumentException(sprintf('Unable to parse URI: "%s"', $uri));
+            }
+
+
+            $this->scheme = $uriParts['scheme'] ?? '';
+            $this->host = strtolower($uriParts['host'] ?? 'localhost');
+            $this->user = $uriParts['user'] ?? '';
+            $this->password = $uriParts['password'] ?? null;
+            $this->path = $uriParts['path'];
+            $this->query = $uriParts['query'] ?? '';
+            $this->setPort($uriParts['port'] ?? null);
+            $this->fragment = $uriParts['fragment'] ?? '';
+        }
+
     }
 
     /**

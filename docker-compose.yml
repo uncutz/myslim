@@ -35,7 +35,6 @@ services:
       - labnet
 
   localhost:
-    platform: linux/x86_64
     image: mysql
     #container_name: mysql
     command: [ '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci' ]

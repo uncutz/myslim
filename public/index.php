@@ -1,5 +1,6 @@
 <?php
 
+use Backend\Factory\RequestFactory;
 use Backend\Http\ServerRequest;
 use Backend\Http\Uri;
 
@@ -9,13 +10,13 @@ require __DIR__ . '/../vendor/autoload.php';
 
 
 $uri = new Uri(
-    sprintf('%s://%s%s%s',
+    sprintf('%s://%s%s',
         $_SERVER['REQUEST_SCHEME'],
         $_SERVER['HTTP_HOST'],
-        $_SERVER['REQUEST_URI'],
-        $_SERVER['QUERY_STRING'] === '' ? '' : '?' . $_SERVER['QUERY_STRING'],
+        $_SERVER['REQUEST_URI']
     )
 );
+
 $request = new ServerRequest(
     $_SERVER['REQUEST_METHOD'],
     $uri,
@@ -25,4 +26,17 @@ $request = new ServerRequest(
 );
 
 
+//alternative
+$requestFactory = new RequestFactory();
+$request = $requestFactory->createRequest($_SERVER['REQUEST_METHOD'], $uri);
+var_dump($request);
+
+
+//TODO Script schreiben, welches anhand der Request den
+// richtigen Controller instanziiert
+// Anforderung:
+// jeder Controller bekommt als Parameter
+// (ServerRequest)$request und
+// (Response)$response,
+// array $args (query params)
 
