@@ -1,7 +1,8 @@
 <?php
 
-use Backend\ServerRequest;
-use Backend\Uri;
+use Backend\Http\ServerRequest;
+use Backend\Http\Uri;
+
 
 require __DIR__ . '/../vendor/autoload.php';
 //TODO https://www.youtube.com/watch?v=3Wuzs9V60x8 wie man psr7 anwendet
@@ -22,4 +23,6 @@ $request = new ServerRequest(
     $_SERVER,
     $_COOKIE,
 );
+
+
 

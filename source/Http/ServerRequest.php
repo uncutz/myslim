@@ -1,8 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Backend;
+namespace Backend\Http;
 
-use JsonException;
 use Psr\Http\Message\ServerRequestInterface;
 
 class ServerRequest implements ServerRequestInterface
@@ -29,8 +28,8 @@ class ServerRequest implements ServerRequestInterface
     public function __construct(
         string $method,
                $uri,
-        array  $headers = [],
         array  $servers = [],
+        array  $headers = [],
         array  $cookies = [],
         array  $attributes = [],
         string $body = null,
@@ -48,16 +47,26 @@ class ServerRequest implements ServerRequestInterface
     }
 
 
+    /**
+     * @return array
+     */
     public function getServerParams(): array
     {
         return $this->servers;
     }
 
+    /**
+     * @return array
+     */
     public function getCookieParams(): array
     {
         return $this->cookies;
     }
 
+    /**
+     * @param array $cookies
+     * @return $this
+     */
     public function withCookieParams(array $cookies): self
     {
         if ($cookies === $this->cookies) {
@@ -70,6 +79,9 @@ class ServerRequest implements ServerRequestInterface
         return $clone;
     }
 
+    /**
+     * @return array
+     */
     public function getQueryParams(): array
     {
 
@@ -81,11 +93,20 @@ class ServerRequest implements ServerRequestInterface
         return $this->queries;
     }
 
-    public function getQueryParam(string $param, $default = null)
+    /**
+     * @param string $param
+     * @param null $default
+     * @return mixed|null
+     */
+    public function getQueryParam(string $param, $default = null): string
     {
         return $this->getQueryParams()[$param] ?? $default;
     }
 
+    /**
+     * @param array $query
+     * @return $this
+     */
     public function withQueryParams(array $query): ServerRequest
     {
         if ($query === $this->queries) {

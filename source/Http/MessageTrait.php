@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Backend;
+namespace Backend\Http;
 
 //TODO https://www.youtube.com/watch?v=QHPmA5LFtrM 00:44:50
 use InvalidArgumentException;

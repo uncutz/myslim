@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Backend;
+namespace Backend\Http;
 
 use http\Exception\InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
@@ -264,5 +264,14 @@ class Stream implements StreamInterface
         }
 
         return $meta[$key] ?? null;
+    }
+
+    /**
+     * @param string $mode
+     * @return bool
+     */
+    public static function validMode(string $mode): bool
+    {
+        return in_array($mode, self::READ_WRITE_MODE, true);
     }
 }
