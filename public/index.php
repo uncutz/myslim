@@ -3,6 +3,8 @@
 use Backend\Factory\RequestFactory;
 use Backend\Http\ServerRequest;
 use Backend\Http\Uri;
+use Backend\RouteHandler;
+use Backend\Router;
 
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -39,4 +41,9 @@ var_dump($request);
 // (ServerRequest)$request und
 // (Response)$response,
 // array $args (query params)
+
+
+$routeHandler = new RouteHandler(new Router(), include __DIR__.'/../projectConfig/routes.php');
+$matchedRoute = $routeHandler->getMatchedRoute();
+$routeHandler->runClassOfRoute($matchedRoute);
 
